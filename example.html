@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+  <script src="cross.js"></script>
+  <script>
+  var bf;
+  var largeur = 400;
+  var hauteur = 400;
+  var angle = 0;
+  
+  var xr = Math.random() * largeur; 
+  var yr = Math.random() * hauteur;
+  
+  dist = function(v1, v2) {
+    var dx, dy;
+    if (arguments.length === 4) {
+      dx = v1.x - v2.x;
+      dy = v1.y - v2.y;
+      return Math.sqrt(dx * dx + dy * dy);
+    } 
+  };
+  
+  rotvec = function(v,phi){
+    return {
+      x: v.x * Math.cos(phi) - v.y * Math.sin(phi),
+      y: v.x * Math.sin(phi) + v.y * Math.cos(phi)
+    };
+  };   
+  
+  addvec = function(){
+    var x = 0, y = 0;
+    for(var i = 0; i < arguments.length; i++){
+      x += arguments[i].x;
+      y += arguments[i].y;
+    }
+    return {x: x, y: y};
+  }
+    
+  drawSquare = function(ctx){
+    var haut = {x: this.dir.x, y: this.dir.y};
+    var bas = {x: -this.dir.x, y: -this.dir.y};
+    var gauche = rotvec( haut, Math.PI / 2. );
+    var droit = rotvec( haut, -Math.PI / 2. );
+    
+    var tab = [
+      addvec(this.centre, haut, gauche),
+      addvec(this.centre, haut, droit),
+      addvec(this.centre, bas, droit),
+      addvec(this.centre, bas, gauche)
+    ];
+
+    ctx.beginPath();
+    ctx.strokeStyle = 'black';
+    for(var i = 0; i < tab.length; i++){
+       context.lineTo(tab[i].x, tab[i].y);
+    }
+    ctx.closePath();
+    ctx.stroke();
+  };
+  
+  var datas = [{
+    id: "1", //mettre l'identifiant de la conn
+    z: 1,
+    centre: { x: xr, y: yr },
+    dir: { x:0, y: -20 },
+    draw: drawSquare
+  },
+  {
+    id:"background",
+    z:0,
+    mask: [
+      { x: 0, y: 0 },
+      { x: largeur, y: 0 },
+      { x: largeur, y: hauteur },
+      { x: 0, y: hauteur }
+    ],
+    hover: function(step, crossjs){
+      var carre = crossjs.getShapeById("1");
+      var mousex = crossjs.mouseX;
+      var mousey = crossjs.mouseY;
+      
+      // on calcule l'angle entre 
+      var angle = -Math.atan2( mousex - carre.centre.x, mousey - carre.centre.y );
+      
+      carre.centre = { x: carre.centre.x + ( (mousex - carre.centre.x) / 10 ),
+                      y: carre.centre.y + ( (mousey - carre.centre.y) / 10 ) };
+      carre.dir = rotvec( {x: 0, y: 20}, angle );
+      return true;
+    }
+  }
+  ];
+  </script>
+  </head>
+  <body onload="bf = new X(largeur.toString(), hauteur.toString(), 'battlefield', 30); bf.init(datas)">
+    <canvas id="battlefield" >
+    This text is displayed if your browser does not support HTML5 Canvas.
+    </canvas>
+  </body>
+</html>

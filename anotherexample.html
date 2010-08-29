@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+  <script src="cross.js"></script>
+  <script>
+
+  
+var data_json = [
+                 {libelle: "test", valeur: "40"},
+                 {libelle: "test2", valeur: "25"},
+                 {libelle: "test3", valeur: "48"},
+                 {libelle: "test4", valeur: "36"},
+                 {libelle: "test5", valeur: "42"},
+                 {libelle: "test6", valeur: "21"},
+                 {libelle: "test7", valeur: "39"}
+               ];
+
+function map(value, istart, istop, ostart, ostop) {
+  return ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
+};
+
+var datas = [];
+var wi = 0;
+var he = 400;
+var taille_col = 30;
+var max_d = 42; 
+var nb_step_grow = 400;
+
+function createDatas(){
+  
+  for(var d in data_json){
+    datas.push({
+      z: 0,
+      color: {r: 155, g: 0, b: 0},
+      id: d.libelle,
+      valeur: parseInt(data_json[d].valeur, 10),
+      valeur_cur: 0,
+      libelle: data_json[d].libelle,
+      mask:[
+        {x: wi, y: he},
+        {x: wi, y: he},
+        {x: wi + taille_col, y: he},
+        {x: wi + taille_col, y: he}
+      ],
+	  draw: function(c){
+    	  c.beginPath();
+    	  c.strokeStyle = 'black';
+    	  c.fillStyle = "rgb(" + this.color.r + "," + this.color.g + "," + this.color.b + ")";
+    	  for(var i = 0; i < this.mask.length; i++){
+    	    c.lineTo(this.mask[i].x, this.mask[i].y);
+    	  }
+    	  c.closePath();
+    	  c.stroke();
+    	  c.fill();
+    	  if(this.z === 1){
+    	      c.fillStyle = 'black';
+	    	  c.font = '15px sans-serif';
+	    	  c.fillText(this.libelle, this.mask[0].x, 40);
+    	  }
+      },
+      hover: function(step, c){
+        this.z = 1;
+        this.color.r += 10;
+        if(this.color.r >= 255){
+          return false;
+        }
+        return true;
+      },
+      unhover: function(step, c){
+        this.z = 0;
+        this.color.r = 155;
+      },
+      grow: function(step, c){
+        this.valeur_cur = map(step, 0, nb_step_grow, 0, this.valeur);
+        if(step < nb_step_grow){
+          var new_h = this.mask[1].y;
+          new_h = map(this.valeur_cur, 0, max_d, 0, he * 0.75);
+          this.mask[1].y = he - new_h;
+          this.mask[2].y = he - new_h;
+          return true;
+        }
+      }
+    });
+    wi += (taille_col + 10);
+  }
+};
+
+datas.push(
+{
+	id:"rend",
+	z:2,
+	draw: function(c){
+    c.fillStyle = 'black';
+	  c.font = '15px sans-serif';
+	  if(diagram && diagram.numrend)
+	  	c.fillText('rendering : ' + diagram.numrend.toString(), 150, 20);
+	}
+}
+);
+
+function launchGrow(cross){
+  for(var d in datas){
+    var id = datas[d].id;
+    cross.triggy("grow", id);
+  }
+};
+  </script>
+  </head>
+  <body onload="createDatas();diagram = new X('400', '400', 'diagram', 30); diagram.init(datas);launchGrow(diagram);">
+    <canvas id="diagram" >
+    This text is displayed if your browser does not support HTML5 Canvas.
+    </canvas>
+  </body>
+</html>

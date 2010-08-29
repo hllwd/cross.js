@@ -1,0 +1,84 @@
+cross.js is a tiny framework for HTML5.canvas
+it carries event management and refresh canvas's context only if necessary
+it allows multiple canvas in a single HTML page
+
+ 
+creating a canvas with cross.js : 
+var myCross = new X(width, height, canvasid, framerate);  // create a new crossjs instance
+myCross.init(datas); // put datats on your canvas
+
+datas normalization for cross.js
+the init method takes in parameter an array of datas 
+
+attributes for datas in cross.js
+id : String - not necessary
+	an identifier for your data
+	if not specified by the user, will be set by cross.js
+	useful for X.getShapeById, X.triggy and X.removeShape
+
+z : int - not necessary
+	a z index for depth management
+	0 if not specified by the user
+	
+intersect : boolean function(mouse) - not necessary
+	a function for intersection with mouse {x,y} (mainly for event management)
+	if not specified and mask too, the shape will not interact with mouse
+	
+mask : array of points(int x, int y) or a centre(int x,int y) and an int radius- not necessary
+	polygon or circle mask of your shape, and default drawing
+	if intersect function is not defined, cross.js will use the mask to determine if the mouse intersect your mouse
+	if draw function is not defined, cross.js will user the mask to draw your shape
+	 
+draw : function(context context) - not necessary
+	your drawing function
+	if not defined by the user, cross.js will use mask with a black stroke
+	
+about event functions in your datas
+event functions are automaticaly caught by crossjs if you've defined them
+the parameters are the step number and the crossjs instance for using its facilities like mouseX, mouseY and other functions
+while your function is returning true, it will be executed by crossjs at the next frame with the step attribute increased
+for example, if you want to make a smooth change of the color of your shape during one second when it is clicked
+
+// suppose a framerate of 30)
+click(step, cross){
+	if(step < 30){
+		this.color.r += 5;
+		return true;
+	}
+	return false; // not necessary
+}
+
+hover : function caught one time when a the object is hovered
+
+unhover : function caught one time when the object in unhovered
+
+click : function caught one time when the object is clicked
+
+dragg : function caught each frame when the object is dragged by the mouse
+	beacause dragg is called on each frame of the dragging, it's better never return true when using dragg
+
+release : function caught if the dragged object is released
+
+cross.js facilities
+
+mouseX : int
+	current x position of the mouse in the canvas
+
+mouseY : int
+	current y position of the mouse in the canvas
+	
+addShape : String function(shape)
+	adding a shape in the cross.js cycle, returning its id and refreshing the context
+	
+removeShape : function(shape, boolean rend)
+	removing a shape of the cross.js cycle, rendering if rend == true
+	
+getShapeById : shape function(String id)
+	returning a shape of the cross.js cycle by its id
+	
+triggy : function(String event, String id)
+	throwing a custom event function in the shape of id == id
+	custom functions need the same parameters than the mouse event functions
+	
+reboot : function(datas)
+	rebooting your canvas with new datas
