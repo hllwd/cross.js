@@ -1,9 +1,11 @@
 /*****
-* v.0.5.0
+* v.0.5.1 - 30/08/2010
 * cross.js is under MIT license 
 *
 * cross.js is a tiny event manager for HTML5.canvas
 * the main goal is to render canvas only if necessary
+* 
+* done : _intersect beetween a circle and point
 */
 
 function X(width, height, canvasid, framerate){
@@ -92,7 +94,7 @@ X.prototype._intersect = function(point, shape){
 	  }
 	  // circle mask
 	  if(shape.mask.center && shape.mask.radius){
-	    return (this._dist(point.x, point.y, shape.mask[0], shape.mask[1]) <= shape.mask[2] / 2); 
+	    return (this._dist(point.x, point.y, shape.mask.center.x, shape.mask.center.y) <= shape.mask.radius ); 
 	  }
 	  // polygon mask
 	  var c = false;
