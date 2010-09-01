@@ -1,5 +1,5 @@
 /****
-* v.0.0.1 - 30/08/2010
+* v.0.0.2 - 01/09/2010
 * redcross.js is under the MIT licence 
 *
 * redcross.js is a set of util functions for cross.js -> http://harmonicacore.appspot.com/#X
@@ -12,15 +12,15 @@ function RX(){
 
 };
 
-RX.prototype.constrain(aNumber, aMin, aMax){
+RX.prototype.constrain = function(aNumber, aMin, aMax){
   return aNumber > aMax ? aMax : aNumber < aMin ? aMin : aNumber;
 };
 
-RX.prototype.map(value, istart, istop, ostart, ostop){
+RX.prototype.map = function(value, istart, istop, ostart, ostop){
   return ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
 };
 
-RX.prototype.dist(){
+RX.prototype.dist = function(){
   var dx, dy, dz;
   if (arguments.length === 4) {
     dx = arguments[0] - arguments[2];
@@ -34,11 +34,11 @@ RX.prototype.dist(){
   }
 };
 
-RX.prototype.norm(aNumber, low, high){
+RX.prototype.norm = function(aNumber, low, high){
   return (aNumber - low) / (high - low);
 };
 
-RX.prototype.max(){
+RX.prototype.max = function(){
   if (arguments.length === 2) {
     return arguments[0] < arguments[1] ? arguments[1] : arguments[0];
   } else {
@@ -57,7 +57,7 @@ RX.prototype.max(){
   }
 };
 
-RX.prototype.min(){
+RX.prototype.min = function(){
   if (arguments.length === 2) {
     return arguments[0] < arguments[1] ? arguments[0] : arguments[1];
   } else {
@@ -80,7 +80,7 @@ RX.prototype.min(){
 * point : {x, y}
 * shape : [ {x, y}, ... ]
 */
-RX.prototype.intersectPointShape(point, shape){
+RX.prototype.intersectPointShape = function(point, shape){
   // polygon mask
   var c = false;
   var j = shape.length - 1;
@@ -98,6 +98,6 @@ RX.prototype.intersectPointShape(point, shape){
 * point: { x, y }
 * circle: {center: { x, y }, radius }
 */
-RX.prototype.intersectPointCircle(point, circle){
+RX.prototype.intersectPointCircle = function(point, circle){
 	 return (this.dist(point.x, point.y, circle.centre.x, circle.center.y) <= circle.radius); 
 };

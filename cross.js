@@ -1,11 +1,11 @@
 /*****
-* v.0.5.1 - 30/08/2010
+* v.0.5.2 - 01/09/2010
 * cross.js is under MIT license 
 *
 * cross.js is a tiny event manager for HTML5.canvas
 * the main goal is to render canvas only if necessary
 * 
-* done : _intersect beetween a circle and point
+* done : _defaultDraw allowed with a circle
 */
 
 function X(width, height, canvasid, framerate){
@@ -141,13 +141,22 @@ X.prototype._targetMouse = function(){
 */
 X.prototype._defaultDraw = function (elt){
   if(!elt.mask) return;
-  this.context.beginPath();
+  
+  if(elt.mask.length){
+    this.context.beginPath();
     this.context.strokeStyle = 'black';
-  for(var i = 0; i < elt.mask.length; i++){
-    this.context.lineTo(elt.mask[i].x, elt.mask[i].y);
+    for(var i = 0; i < elt.mask.length; i++){
+      this.context.lineTo(elt.mask[i].x, elt.mask[i].y);
+    }
+    this.context.closePath();
+    this.context.stroke();
+  } else if(elt.mask.center && elt.mask.radius){
+    this.context.beginPath();
+    this.context.strokeStyle = 'black';
+    this.context.arc(elt.mask.center.x, elt.mask.center.y, elt.mask.radius, 0, Math.PI*2, true);
+    this.context.closePath();  
+    this.context.stroke();
   }
-  this.context.closePath();
-  this.context.stroke();
 };
 
 
