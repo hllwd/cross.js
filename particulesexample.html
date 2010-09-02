@@ -1,0 +1,169 @@
+<html>
+<head>
+<script src="redcross.js"> </script>
+<script src="cross.js" > </script>
+<script src="ivorycross.js" > </script>
+<script>
+var w = 600;
+var h = 600;
+
+var rx = new RX();
+var ix = new IX();
+
+var idGen = 0;
+
+var  attracts = [];
+
+var currentPos = {};
+
+var datas = [];
+
+function createParticule(){
+  return {
+    id: idGen.toString(),
+    z: idGen++,
+    pos: {
+      x: rx.random(w / 3, 2 * w / 3),
+      y: rx.random(h / 3, 2 * h / 3),  
+    },
+    vit: {
+      x: rx.random(3, 30),
+      y: rx.random(3, 30)
+    },
+    dir: {
+      x: 0,
+      y: 0
+    },
+    tra: {
+      x: rx.random(0.92, 0.99),
+      y: rx.random(0.92, 0.99)
+    },
+    draw: function(ctx){
+      var col = Math.floor(rx.map(Math.abs(this.dir.x) + Math.abs(this.dir.y), 0, 10, 0, 255) );
+      ix.fill("rgb(" + col + ",0,0)");
+      ix.circle(this.pos, 5);
+      ix.line(this.pos, 
+        {x: this.pos.x - 3 * this.dir.x, y: this.pos.y - 3 * this.dir.y}
+      );
+    },
+    maj: function(){
+      currentPos = {
+       x: this.pos.x,
+       y: this.pos.y
+      };
+      
+      attracts.sort(sortAttracts);
+     
+      var cpt = 0;
+      while(cpt < attracts.length){
+       if(calcDistancePC(attracts[cpt]) - calcAttraction(attracts[cpt]) < 0){
+         var position = calcPosition(attracts[cpt]);
+         this.dir.x = (position.x - this.pos.x) / this.vit.x;
+         this.dir.y = (position.y - this.pos.y) / this.vit.y;
+         break;
+       }
+       cpt++;
+      }
+      this.dir.x *= this.tra.x;
+      this.dir.y *= this.tra.y;
+
+      this.pos.x += this.dir.x;
+      this.pos.y += this.dir.y;    
+    }
+  };
+};
+
+function createAttractor(){
+  return {
+    id: idGen.toString(),
+    z: idGen++,
+    pos: {
+      x : rx.random(w / 3, 2 * w / 3),
+      y : rx.random(h / 3, 2 * h / 3)
+    },
+    rotpos : rx.random(0, 2*Math.PI),
+    raypos : rx.random(50, 100),
+    comptpos : rx.random(0.03, 0.07),
+    senspos : rx.random(-1,1),
+    rotatr : rx.random(0, 2*Math.PI),
+    rayatr : rx.random(100, 200),
+    comptatr : rx.random(0.03, 0.07),
+    draw : function(ctx){
+      var attraction = calcAttraction(this);
+      var position = calcPosition(this);
+
+      var col = Math.floor(rx.map(attraction, 0, this.rayatr, 0, 255));
+      ix.noStroke();
+      ix.fill("rgb(" + col + ",0,0)");
+      ix.circle( position, 10 );
+
+      ix.noFill();
+      ix.stroke("rgb(" + col + ",0,0)")
+      ix.circle( position, attraction );    
+    },
+    maj : function(){
+      if(this.senspos > 0){
+       this.rotpos += this.comptpos;
+      } else {
+       this.rotpos -= this.comptpos;
+      }
+      this.rotatr += this.comptatr;    
+    }
+  };
+};
+
+// object to launch the animation
+var trigger = {
+  id: "trigger",
+  z: -1,
+  update: function(step, cross){
+    var shapes = cross.getShapes();
+    for(elt in shapes){
+      var shape = shapes[ elt ];
+      if(shape.maj){
+        shape.maj();
+      }
+    }
+    return true;
+  }
+};
+
+datas.push(trigger);
+
+//util
+function calcAttraction(atr){
+ return rx.constrain( (Math.sin(atr.rotatr) + 1) / 2 * atr.rayatr, 40, 200);
+};
+
+function calcPosition(atr){
+ return {x : atr.pos.x + Math.cos(atr.rotpos) * atr.raypos, y : atr.pos.y + Math.sin(atr.rotpos) * atr.raypos};
+};
+
+function sortAttracts(a, b){
+ return (calcDistancePC(a) < calcDistancePC(b)) ? -1 : 1;
+};
+
+function calcDistancePC(atr){
+ var attraction = calcAttraction(atr);
+ var position = calcPosition(atr);
+
+ return rx.dist(position, currentPos) ;
+};
+
+for(var i = 0 ; i < 12 ; i++){
+ var at = createAttractor();
+ attracts.push(at);
+ datas.push(at);
+}
+ 
+for(var i = 0 ; i < 50 ; i++){
+ datas.push(createParticule());
+}
+
+</script>
+</head>
+<body onload="c = new X('600','600','cnvs', 30); ix.setContext(c.context); c.init(datas); c.triggy('update', 'trigger');">
+<canvas id="cnvs">
+</canvas>
+</body>
+</html>

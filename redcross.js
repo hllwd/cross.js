@@ -1,11 +1,11 @@
 /****
-* v.0.0.2 - 01/09/2010
+* v.0.0.3 - 02/09/2010
 * redcross.js is under the MIT licence 
 *
 * redcross.js is a set of util functions for cross.js -> http://harmonicacore.appspot.com/#X
 * mostly based on processing.js functions -> http://processingjs.org
-*
 * 
+* adding processing.js random
 */
 
 function RX(){
@@ -21,17 +21,10 @@ RX.prototype.map = function(value, istart, istop, ostart, ostop){
 };
 
 RX.prototype.dist = function(){
-  var dx, dy, dz;
-  if (arguments.length === 4) {
-    dx = arguments[0] - arguments[2];
-    dy = arguments[1] - arguments[3];
-    return Math.sqrt(dx * dx + dy * dy);
-  } else if (arguments.length === 6) {
-    dx = arguments[0] - arguments[3];
-    dy = arguments[1] - arguments[4];
-    dz = arguments[2] - arguments[5];
-    return Math.sqrt(dx * dx + dy * dy + dz * dz);
-  }
+  var dx, dy;
+  dx = arguments[0].x - arguments[1].x;
+  dy = arguments[0].y - arguments[1].y;
+  return Math.sqrt(dx * dx + dy * dy);
 };
 
 RX.prototype.norm = function(aNumber, low, high){
@@ -100,4 +93,15 @@ RX.prototype.intersectPointShape = function(point, shape){
 */
 RX.prototype.intersectPointCircle = function(point, circle){
 	 return (this.dist(point.x, point.y, circle.centre.x, circle.center.y) <= circle.radius); 
+};
+
+RX.prototype.random = function(){
+  if(arguments.length === 0) {
+    return Math.random();
+  } else if(arguments.length === 1) {
+    return Math.random() * arguments[0];
+  } else {
+    var aMin = arguments[0], aMax = arguments[1];
+    return Math.random() * (aMax - aMin) + aMin;
+  }
 };

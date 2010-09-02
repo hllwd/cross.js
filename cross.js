@@ -1,11 +1,11 @@
 /*****
-* v.0.5.2 - 01/09/2010
+* v.0.5.3 - 02/09/2010
 * cross.js is under MIT license 
 *
 * cross.js is a tiny event manager for HTML5.canvas
 * the main goal is to render canvas only if necessary
 * 
-* done : _defaultDraw allowed with a circle
+* done : add the public getShapes function -> returning a hash of the objects in cross
 */
 
 function X(width, height, canvasid, framerate){
@@ -499,6 +499,14 @@ X.prototype.removeShape = function(sh, rend){
 */
 X.prototype.getShapeById = function(id){
   return this.shapes[id];
+};
+
+/**
+* public method getShapes
+* return all the shapes
+*/
+X.prototype.getShapes = function(){
+  return this.shapes;
 };
 
 
