@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- The HTML 4.01 Transitional DOCTYPE declaration-->
+<!-- above set at the top of the file will set     -->
+<!-- the browser's rendering engine into           -->
+<!-- "Quirks Mode". Replacing this declaration     -->
+<!-- with a "Standards Mode" doctype is supported, -->
+<!-- but may lead to some differences in layout.   -->
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>test</title>
+    <style type="text/css">
+    #general {
+    	padding-left:30%;
+    	padding-right:30%;
+    }
+	#canvas {
+    position:	absolute;
+    display:	block;
+    visibility:	visible;
+    z-index:	0;
+    overflow-x:	visible;
+    overflow-y:	visible;
+    white-space:	normal;
+    clip:	auto;
+    float:	none;
+    clear: none;
+    left: 0;
+    top: 0;
+	}  
+	</style> 
+  <script src="redcross.js"> </script>
+  <script src="cross.js" > </script>
+  <script src="ivorycross.js" > </script>  
+  <script>
+    var datas = [{
+      id: "button",
+      z:1,
+      mask: {center: {x:100, y:100}, radius: 20},
+      canvasPos: {x: 0, y: 0},
+      dragg: function(step, cross){
+        this.canvasPos.x = mx - this.mask.center.x;
+        this.canvasPos.y = my - this.mask.center.y;
+        cross.canvas.style.left = this.canvasPos.x;
+        cross.canvas.style.top = this.canvasPos.y
+      }
+    },
+    {
+      id: "background",
+      z: 0,
+      mask: [
+        {x:0, y: 0},
+        {x:200, y: 0},
+        {x:200, y: 200},
+        {x:0, y: 200}
+      ]
+    }];
+    
+    var mx = 0;
+    var my = 0;
+    
+    function initMousePos(){
+      document.body.addEventListener("mousemove", function(e){
+        mx = e.pageX;
+        my = e.pageY;
+      }, false);
+    };
+    
+  </script>
+  </head>
+
+  <body onload="initMousePos(); c = new X('200','200','canvas', 30); c.init(datas);">
+  <canvas id="canvas" >your browser does not support canvas</canvas>
+  <div id="general">
+  dragg the circle in the canvas to move the canvas over the page
+  <br/>
+  <br/>     
+  <hr align="center" width="50%" color="black" size="3" />
+  blablabla
+  <br/>
+  <br/> 
+  <hr align="center" width="50%" color="black" size="3" />
+  blablabla
+  <br/>
+  <br/> 
+  <hr align="center" width="50%" color="black" size="3" />    
+  blablabla
+  <br/>
+  <br/>
+  </div>
+  </body>
+</html>

@@ -1,0 +1,49 @@
+how to create a simple animation without interaction ?
+	// object to manage the animation
+	var trigger = {
+	  id: "trigger",
+	  z: -1,
+	  update: function(step, cross){
+	    var shapes = cross.getShapes();
+	    for(elt in shapes){
+	      var shape = shapes[ elt ];
+	      if(shape.maj){
+	        shape.maj();
+	      }
+	    }
+	    return true;
+	  }
+	};	
+	
+	// and then, after the init of your cross.js instance
+	crossjs.triggy('update', 'trigger');	
+	// see particulesexample.html
+	
+how to integrate a cross.js canvas with other dom elements ?	
+	for example : (see integratingexample)
+	// css 
+	#canvas {
+	    position:	absolute;
+	    display:	block;
+	    visibility:	visible;
+	    z-index:	0;
+	    overflow-x:	visible;
+	    overflow-y:	visible;
+	    white-space:	normal;
+	    clip:	auto;
+	    float:	none;
+	    clear: none;
+	    left: 0;
+	    top: 0;
+	}  
+	
+	// mouse management
+    var mx = 0;
+    var my = 0;
+    
+    function initMousePos(){
+      document.body.addEventListener("mousemove", function(e){
+        mx = e.pageX;
+        my = e.pageY;
+      }, false);
+    };	

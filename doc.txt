@@ -10,7 +10,8 @@ myCross.init(datas); // put datats on your canvas
 datas normalization for cross.js
 the init method takes in parameter an array of datas 
 
-attributes for datas in cross.js
+*****attributes for datas in cross.js*****
+
 id : String - not necessary
 	an identifier for your data
 	if not specified by the user, will be set by cross.js
@@ -59,7 +60,7 @@ dragg : function caught each frame when the object is dragged by the mouse
 
 release : function caught if the dragged object is released
 
-cross.js facilities
+*****cross.js facilities*****
 
 mouseX : int
 	current x position of the mouse in the canvas
@@ -76,9 +77,72 @@ removeShape : function(shape, boolean rend)
 getShapeById : shape function(String id)
 	returning a shape of the cross.js cycle by its id
 	
+getShapes : Object function()
+	returning the hash containing all the shapes of the cross.js instance
+	keys are id
+	
 triggy : function(String event, String id)
 	throwing a custom event function in the shape of id == id
 	custom functions need the same parameters than the mouse event functions
 	
 reboot : function(datas)
 	rebooting your canvas with new datas
+	
+canvas : the canvas manipulated in the cross.js instance
+
+context : the context of the canvas
+
+*****redcross.js*****
+
+creating an instance : 
+var rx = new RX();
+
+redcross.js is a set of util functions, very inspired (...) by processing and processing.js
+
+constrain : float function(aNumber, aMin, aMax)
+
+map : float function(value, istart, istop, ostart, ostop)
+
+dist : float function(point1, point2)
+
+norm : float function(aNumber, low, high)
+
+max : float function()
+
+min : float function()
+
+intersectPointShape : boolean function(point, shape)
+	point : {x,y}, shape : [ {x,y}, ... ]
+	
+intersectPointCircle : function(point, circle)
+	point : {x,y}, circle : { center: {x,y}, radius }
+	
+*****ivorycross.js*****
+
+ivorycross.js is a set of drawing functions
+
+creating an instance : 
+var ix = new IX(context);
+
+setContext : function(context)
+
+polygon : function(polygon)
+	polygon : [ {x,y}, ... ]
+	
+circle : function(center, radius)
+	
+disk : function(center, radius1, radius2)
+
+rectangle : function(point, width, height)
+
+line : function(point1, point2)
+
+fill : function(style)
+
+stroke : function(style [, weight])
+
+noStroke : function()
+
+noFill : function()
+
+strokeWeight : function(weight)
