@@ -1,11 +1,11 @@
 /*****
-* v.0.5.3 - 02/09/2010
+* v.0.5.4 - 04/09/2010
 * cross.js is under MIT license 
 *
 * cross.js is a tiny event manager for HTML5.canvas
 * the main goal is to render canvas only if necessary
 * 
-* done : add the public getShapes function -> returning a hash of the objects in cross
+* done : add rightclick and centerclick
 */
 
 function X(width, height, canvasid, framerate){
@@ -27,6 +27,8 @@ function X(width, height, canvasid, framerate){
   // event queue
   this.eq = {
     click: {},
+    rightclick: {},
+    centerclick: {},
     hover: {},
     unhover: {},
     dragg: {},
@@ -340,13 +342,32 @@ X.prototype._release = function(rend){
 * private method _click
 * click management
 */
-X.prototype._click = function(rend){
+X.prototype._click = function(rend, which){
   var shape = this._targetMouse();
-  if(shape != null && shape.click){
-    // put the obj in eq.click
-    this.eq.click[ shape.id ] = 0;  // init with the step
-    rend = true;
+  switch (which){
+  case 1 : 
+	  if(shape != null && shape.click){
+		// put the obj in eq.click
+		this.eq.click[ shape.id ] = 0;  // init with the step
+		rend = true;
+	  }
+	  break;
+  case 2 : 
+	  if(shape != null && shape.centerclick){
+		// put the obj in eq.centerclick
+		this.eq.centerclick[ shape.id ] = 0;  // init with the step
+		rend = true;
+	  }
+	  break;
+  case 3 : 
+	  if(shape != null && shape.rightclick){
+		// put the obj in eq.rightclick
+		this.eq.rightclick[ shape.id ] = 0;  // init with the step
+		rend = true;
+	  }
+	  break;	  	  
   }
+
   if(rend == true){ // on demande un rendu
     _render(false, this);
   }
@@ -395,7 +416,7 @@ function _eventManager(e){
         this.crossjs._release(false);
       }
     }else{
-      this.crossjs._click(false);
+      this.crossjs._click(false, e.which);
     }
   }
 };

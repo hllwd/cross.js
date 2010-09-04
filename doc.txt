@@ -5,9 +5,9 @@ it allows multiple canvas in a single HTML page
  
 creating a canvas with cross.js : 
 var myCross = new X(width, height, canvasid, framerate);  // create a new crossjs instance
-myCross.init(datas); // put datats on your canvas
+myCross.init(datas); // put datas on your canvas
 
-datas normalization for cross.js
+data normalization for cross.js
 the init method takes in parameter an array of datas 
 
 *****attributes for datas in cross.js*****
@@ -53,7 +53,11 @@ hover : function caught one time when a the object is hovered
 
 unhover : function caught one time when the object in unhovered
 
-click : function caught one time when the object is clicked
+click : function caught one time when the object is left clicked
+
+centerclick : function caught one time when the object is center clicked
+
+rightclick : function caught one time when the object is right clicked
 
 dragg : function caught each frame when the object is dragged by the mouse
 	beacause dragg is called on each frame of the dragging, it's better never return true when using dragg
@@ -116,6 +120,10 @@ intersectPointShape : boolean function(point, shape)
 	
 intersectPointCircle : function(point, circle)
 	point : {x,y}, circle : { center: {x,y}, radius }
+	
+rotate : point function(point, angle [, center])
+
+rotateShape : shape function(shape, angle [, center])
 	
 *****ivorycross.js*****
 

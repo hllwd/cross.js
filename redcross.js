@@ -1,11 +1,11 @@
 /****
-* v.0.0.3 - 02/09/2010
+* v.0.0.4 - 04/09/2010
 * redcross.js is under the MIT licence 
 *
 * redcross.js is a set of util functions for cross.js -> http://harmonicacore.appspot.com/#X
 * mostly based on processing.js functions -> http://processingjs.org
 * 
-* adding processing.js random
+* adding rotate and rotateShape
 */
 
 function RX(){
@@ -104,4 +104,44 @@ RX.prototype.random = function(){
     var aMin = arguments[0], aMax = arguments[1];
     return Math.random() * (aMax - aMin) + aMin;
   }
+};
+
+RX.prototype.rotate = function(){
+	var point = arguments[0];
+	var angle = arguments[1];
+	
+	var center = {x: 0, y: O};
+	if(arguments[2]){
+		center = arguments[2];
+	}  
+	
+	var xr = point.x - center.x;
+	var yr = point.y - center.y;
+	
+	return {
+		x: xr * Math.cos(angle) - yr * Math.sin(angle),
+		y: xr * Math.sin(angle) + yr * Math.cos(angle)
+	};
+};
+
+RX.prototype.rotateShape = function(){
+	var shape = arguments[0];
+	var angle = arguments[1];	
+	if(arguments[2]){
+		var center = arguments[2];
+	}
+	
+	var ret = [];
+	
+	if(center){
+		for(pt in shape){
+			ret.push( rotate( shape[ pt ], angle, center ) );
+		}		
+	}else {
+		for(pt in shape){
+			ret.push( rotate( shape[ pt ], angle ) );
+		}		
+	}
+	
+	return ret;
 };
