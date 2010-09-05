@@ -1,11 +1,11 @@
 /****
-* v.0.0.4 - 04/09/2010
+* v.0.0.5 - 05/09/2010
 * redcross.js is under the MIT licence 
 *
 * redcross.js is a set of util functions for cross.js -> http://harmonicacore.appspot.com/#X
 * mostly based on processing.js functions -> http://processingjs.org
 * 
-* adding rotate and rotateShape
+* correction rotate and rotateShape, adding translate and translateShape
 */
 
 function RX(){
@@ -110,7 +110,7 @@ RX.prototype.rotate = function(){
 	var point = arguments[0];
 	var angle = arguments[1];
 	
-	var center = {x: 0, y: O};
+	var center = {x: 0, y: 0};
 	if(arguments[2]){
 		center = arguments[2];
 	}  
@@ -119,8 +119,8 @@ RX.prototype.rotate = function(){
 	var yr = point.y - center.y;
 	
 	return {
-		x: xr * Math.cos(angle) - yr * Math.sin(angle),
-		y: xr * Math.sin(angle) + yr * Math.cos(angle)
+		x: (xr * Math.cos(angle) - yr * Math.sin(angle)) + center.x,
+		y: (xr * Math.sin(angle) + yr * Math.cos(angle)) + center.y
 	};
 };
 
@@ -135,13 +135,28 @@ RX.prototype.rotateShape = function(){
 	
 	if(center){
 		for(pt in shape){
-			ret.push( rotate( shape[ pt ], angle, center ) );
+			ret.push( this.rotate( shape[ pt ], angle, center ) );
 		}		
 	}else {
 		for(pt in shape){
-			ret.push( rotate( shape[ pt ], angle ) );
+			ret.push( this.rotate( shape[ pt ], angle ) );
 		}		
 	}
 	
+	return ret;
+};
+
+RX.prototype.translate = function(point, vec){
+	return {
+		x: point.x + vec.x,
+		y: point.y + vec.y
+	};	
+};
+
+RX.prototype.translateShape = function(shape, vec){
+	var ret = [];
+	for(pt in shape){
+		ret.push( this.translate( shape[ pt ], vec ) );
+	}
 	return ret;
 };
