@@ -1,0 +1,191 @@
+<!DOCTYPE script PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script type="text/javascript" src="cross.js"></script>
+<script type="text/javascript" src="redcross.js"></script>
+<script type="text/javascript" src="ivorycross.js"></script>
+<script>
+// width of the canvas
+var w = 600;
+// height of the canvas
+var h = 300;
+
+// ivorycross instance
+var ix = new IX();
+// redcross instance
+var rx = new RX();
+
+// graphic elements
+var datas = [];
+
+// period selected x begin and length
+var xc = 100;
+var lc = 100;
+
+// 1. a time line
+datas.push({
+	id: "timeline",
+	z: 0,
+	draw: function(ctx){
+		ix.noStroke();
+		ix.fill("rgb(170,170,170)");
+		ix.rectangle(
+			{x: 100, y: h/2 - 5},
+			400,
+			10
+		);
+
+		// period selected
+		ix.fill("rgb(255,0,0)");
+		ix.rectangle(
+			{x: xc, y: h/2 - 5},
+			lc,
+			10
+		);		
+	}
+});
+
+// 2. we need 5 time indications : now, hour, day, week, month 
+for(i = 0; i < 5; i++){
+    var id = "";
+	switch(i){
+		case 0: id= "now"; break;
+		case 1: id= "hour"; break;
+		case 2: id= "day"; break;
+		case 3: id= "week"; break;
+		case 4: id= "month"; break;
+	}
+	datas.push({
+		id: id,
+		z: 1,
+		center: {x: i * 100 + 100, y: h / 2},
+		draw: function(ctx){
+			ix.noStroke();
+			ix.fill("rgb(200, 200, 200)");
+			ix.circle( this.center, 10 );
+
+			ctx.font = '15px sans-serif';
+	  	  	ctx.fillText(this.id, this.center.x, 120);				
+		}
+	});
+}
+
+// 3. finally we need 2 cursors to select a period
+datas.push({
+	id: "curs1",
+	z: 2,
+	mask: [
+		{x: 100, y: h/2},
+		{x: 110, y: h/2 + 10},
+		{x: 110, y: h/2 + 40},
+		{x: 90, y: h/2 + 40},
+		{x: 90, y: h/2 + 10}
+	],
+	color: "rgb(100,100,100)",
+	draw: function(ctx){
+		ix.noStroke();
+		ix.fill(this.color);
+		ix.polygon(this.mask);
+		ctx.font = '15px sans-serif';
+		var label = calcPosition(this.mask[0]);
+  	  	ctx.fillText(label, this.mask[0].x, 80);		
+	},
+	hover: function(step, cr){
+		this.color = "black";
+	},
+	unhover: function(step, cr){
+		this.color = "rgb(100,100,100)";
+	},
+	dragg: function(step, cr){
+		var curs2 = cr.getShapeById("curs2");		
+		var mid = rx.constrain(cr.mouseX, 100, curs2.mask[0].x - 20);
+		this.mask = [
+     		{x: mid, y: h/2},
+    		{x: mid + 10, y: h/2 + 10},
+    		{x: mid + 10, y: h/2 + 40},
+    		{x: mid - 10, y: h/2 + 40},
+    		{x: mid - 10, y: h/2 + 10}			
+		];
+		updateSel();
+	}
+});
+
+datas.push({
+	id: "curs2",
+	z: 2,
+	mask: [
+		{x: 200, y: h/2},
+		{x: 210, y: h/2 + 10},
+		{x: 210, y: h/2 + 40},
+		{x: 190, y: h/2 + 40},
+		{x: 190, y: h/2 + 10}
+	],
+	color: "rgb(100,100,100)",
+	draw: function(ctx){
+		ix.noStroke();
+		ix.fill(this.color);
+		ix.polygon(this.mask);
+
+		var label = calcPosition(this.mask[0]);
+  	  	ctx.fillText(label, this.mask[0].x, 100);				
+	},
+	hover: function(step, cr){
+		this.color = "black";
+	},
+	unhover: function(step, cr){
+		this.color = "rgb(100,100,100)";
+	},
+	dragg: function(step, cr){
+		var curs1 = cr.getShapeById("curs1");
+		var mid = rx.constrain(cr.mouseX, curs1.mask[0].x + 20, 500 );
+		this.mask = [
+     		{x: mid, y: h/2},
+    		{x: mid + 10, y: h/2 + 10},
+    		{x: mid + 10, y: h/2 + 40},
+    		{x: mid - 10, y: h/2 + 40},
+    		{x: mid - 10, y: h/2 + 10}			
+		];
+		updateSel();
+	}
+});
+
+//we also add a numrend
+datas.push({
+	id:"rend",
+	z:2,
+	draw: function(ctx){
+    ctx.fillStyle = 'black';
+	  ctx.font = '15px sans-serif';
+	  if(c)
+	  	ctx.fillText('rendering : ' + c.numrend.toString(), 20, 20);
+	}
+}
+);
+
+// label
+function calcPosition(pos){
+	if(pos.x < 200) return Math.floor(rx.map(pos.x, 100, 200, 0, 60)).toString() + "mn";
+	if(pos.x < 300) return Math.floor(rx.map(pos.x, 200, 300, 1, 24)).toString() + "h";
+	if(pos.x < 400) return Math.floor(rx.map(pos.x, 300, 400, 1, 7)).toString() + "d";
+	if(pos.x < 500) return Math.floor(rx.map(pos.x, 400, 500, 1, 4)).toString() + "w";
+	return "1m";
+};
+
+
+// period selected
+function updateSel(){
+	if(c){
+		var c1 = c.getShapeById("curs1");
+		var c2 = c.getShapeById("curs2");
+		xc = c1.mask[0].x;
+		lc = c2.mask[0].x - xc;
+	}
+};
+
+</script>
+</head>
+<body onload="c = new X(w.toString(), h.toString(), 'time-sel', 30); ix.setContext(c.context); c.init(datas);">
+<canvas id="time-sel">your navigator does not support canvas</canvas>
+</body>
+</html>
+
