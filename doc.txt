@@ -64,6 +64,10 @@ dragg : function caught each frame when the object is dragged by the mouse
 
 release : function caught if the dragged object is released
 
+keypressed: function caught when a key is pressed - use X.keyCode to know the keyCode
+
+keyreleased: function caught when a key is released - use X.keyRCode to know the keyCode 
+
 *****cross.js facilities*****
 
 mouseX : int
@@ -124,6 +128,10 @@ intersectPointCircle : function(point, circle)
 rotate : point function(point, angle [, center])
 
 rotateShape : shape function(shape, angle [, center])
+
+translate : point function(point, vect)
+
+translateShape : shape function(shape, vect)
 	
 *****ivorycross.js*****
 

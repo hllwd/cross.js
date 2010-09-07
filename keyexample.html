@@ -1,0 +1,52 @@
+<!DOCTYPE script PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<script type="text/javascript" src="cross.js"></script>
+<script>
+// width of the canvas
+var w = 600;
+// height of the canvas
+var h = 300;
+
+// graphic elements
+var datas = [];
+
+
+//we add a key manager
+datas.push({
+	id:"keym",
+	z:1,
+	text: "",
+	keypressed: function(step, cr){
+		this.text += cr.keyCode.toString();
+	},
+	draw: function(ctx){
+    ctx.fillStyle = 'black';
+	  ctx.font = '15px sans-serif';
+	  if(c)
+	  	ctx.fillText(this.text , 20, 20);
+	}
+}
+);
+
+datas.push({
+	id: "background",
+	z: 0,
+	mask: [
+   		{x: 0, y: 0},
+   		{x: w, y: 0},
+   		{x: w, y: h},
+   		{x: 0, y: h}
+	]
+});
+
+</script>
+</head>
+<body onload="c = new X(w.toString(), h.toString(), 'test-text', 30); c.init(datas);">
+<pre>
+type something
+</pre>
+<canvas id="test-text">your navigator does not support canvas</canvas>
+</body>
+</html>
+

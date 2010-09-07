@@ -1,11 +1,11 @@
 /*****
-* v.0.5.4 - 04/09/2010
+* v.0.5.5 - 07/09/2010
 * cross.js is under MIT license 
 *
 * cross.js is a tiny event manager for HTML5.canvas
 * the main goal is to render canvas only if necessary
 * 
-* done : add rightclick and centerclick
+* done : add keypressed and keyreleased
 */
 
 function X(width, height, canvasid, framerate){
@@ -20,6 +20,8 @@ function X(width, height, canvasid, framerate){
   this.canvas.setAttribute('height', height);
   // framerate
   this.framerate = framerate;
+  // canvasid
+  this.canvasid = canvasid;
   
   // shapes
   this.shapes = {};
@@ -32,7 +34,9 @@ function X(width, height, canvasid, framerate){
     hover: {},
     unhover: {},
     dragg: {},
-    release: {}
+    release: {},
+    keypressed: {},
+    keyreleased: {}
   };
   // mouse
   this.mouseX = 0;
@@ -48,6 +52,8 @@ function X(width, height, canvasid, framerate){
   this.draggedId = "";
   this.rendering = false;
   this.numrend = 0;
+  this.keyCode = 0;
+  this.keyRCode = 0;
   
   // crappy, id
   this.ident = 2280;
@@ -373,6 +379,35 @@ X.prototype._click = function(rend, which){
   }
 };
 
+X.prototype._keyPressed = function(keyCode, rend){
+  this.keyCode = keyCode;
+  for(id in this.shapes){
+	var sh = this.shapes[ id ];
+	if(sh.keypressed){
+		this.eq.keypressed[ sh.id ] = 0;
+		rend = true;
+	}
+  }
+
+  if(rend == true){ // on demande un rendu
+    _render(false, this);
+  }	
+};
+
+X.prototype._keyReleased = function(keyCode, rend){
+  this.keyRCode = keyCode;
+  for(id in this.shapes){
+	var sh = this.shapes[ id ];
+	if(sh.keyreleased){
+		this.eq.keyreleased[ sh.id ] = 0;
+		rend = true;
+	}
+  }
+
+  if(rend == true){ // on demande un rendu
+    _render(false, this);
+  }		
+};
 
 /**
 * function eventManager 
@@ -418,6 +453,14 @@ function _eventManager(e){
     }else{
       this.crossjs._click(false, e.which);
     }
+  } else if(e.type == "keydown"){
+	  for(elt in this.crossjs){
+		  this.crossjs[ elt ]._keyPressed(e.keyCode, false); 
+	  }
+  } else if(e.type == "keyup"){
+	  for(elt in this.crossjs){
+		  this.crossjs[ elt ]._keyReleased(e.keyCode, false); 
+	  }
   }
 };
 
@@ -596,6 +639,15 @@ X.prototype.init = function(datas){
   attach(this.canvas, "mousedown", _eventManager);   
   attach(this.canvas, "mousemove", _eventManager);   
   attach(this.canvas, "mouseout", _mouseOut);  
+  
+  if(document.crossjs){
+	  document.crossjs[ this.canvasid ] = this;
+  }else{
+	  attach(document, "keyup", _eventManager);
+	  attach(document, "keydown", _eventManager);	  
+	  document.crossjs = {};
+	  document.crossjs[ this.canvasid ] = this;
+  }
   
   // draw a first time all the present shapes
   _render(true, this);
