@@ -1,0 +1,254 @@
+<html>
+<head>
+<script src="cross.js"></script>
+<script src="ivorycross.js"></script>
+<script src="redcross.js"></script>
+<script>  
+  
+var w = 800;
+var h = 600;
+
+var datas = [];
+
+// clics
+var clics = [];
+
+// zones non fusionnées
+var zones = {};
+// zones fusionnées
+var zonestraitees = [];
+
+// ivorycross
+var ix = new IX();
+//redcross
+var rx = new RX();
+
+// id des zones non fusionnées
+var zonecount = 0;
+// id des zones fusionnées
+var zonecount2 = 0;
+
+// nombre max de points pour une zone
+var maxzone = 0;
+
+// on ajoute un background dans les datas
+datas.push({
+  id:"background",
+  z: 0,
+  mask: [
+    {x:0, y:0},
+    {x:w, y:0},
+    {x:w, y:h},
+    {x:0, y:h}
+  ],
+  click: function(step, cross){
+    clics.push({
+      x: cross.mouseX,
+      y: cross.mouseY
+    });
+  }, 
+  draw: function(ctx){
+    ix.noFill();
+    ix.stroke("black");
+    ix.polygon(this.mask);
+    
+    ix.fill("black");
+    ix.noStroke();
+    for(ind in clics){
+      ix.circle(clics[ ind ], 5);
+    }
+  }
+});
+
+/**
+* traitement sur les clics -> zones non fusionnées -> zones fusionnées
+**/
+function calc(){
+
+  for(i_c in clics){
+    var zonesAppartient = [];
+    if(i_c === "0"){  // premier cas, on crée la première zone
+      var pc = clics[ i_c ];
+      createZone(pc);
+    } else { // sinon, on cherche toutes les zones éligibles
+      var pc = clics[ i_c ];
+      for(i_z in zones){
+        zc = zones[ i_z ]; // zone courante
+        if(isInZone(pc, zc)){ // si est dans la zone
+          zonesAppartient.push( i_z ); // on ajoute la zone courante dans la liste des zones à fusionner
+        }
+      }
+      if(zonesAppartient.length === 0){ // on crée une nouvelle zone
+        createZone(pc);
+      } else if(zonesAppartient.length === 1){ // le pt n'appartient qu'à une zone, on l'ajoute dans la zone
+        var zone_key = zonesAppartient[ 0 ];
+        zones[ zone_key ].points.push( pc );
+      } else { // appartient à plusieurs zones
+        var zone_key = zonesAppartient[ 0 ]; // on ajoute pt à la première zone
+        zones[ zone_key ].points.push(pc);
+        for(i_za in zonesAppartient){
+          var ind = zonesAppartient[ i_za ];
+          if(ind != zone_key){
+            zones[ zone_key ].linkedzones[ ind ] = "yop";
+          }
+        }
+      }
+    }    
+  }
+ 
+  // on fusionne les zones
+  fusionnerZones();
+  
+  traiterZonesFusionnees();
+  
+  c.reboot(zonestraitees);
+};
+
+/**
+* retourne vrai si pt appartient à la zone
+*/
+function isInZone(pt, zone){
+  for(i_p in zone.points){
+    var ptz = zone.points[ i_p ];
+    if(rx.dist(ptz, pt) <= 10){      
+      return true;
+      break;
+    }
+  }
+  return false;
+};
+
+/**
+* fonction de création d'une nouvelle zone non fusionnée à partir d'un point
+*/
+function createZone(pt){
+  var zone = {
+    points: [ pt ],
+    linkedzones: {}
+  }
+  zones[ zonecount.toString() ] = zone;
+  zonecount++;
+};
+
+function fusionnerZones(){
+  for(i_z in zones){
+    var zone = zones[ i_z ];
+    
+    zonecount2++;
+    var zonefusionnee = {
+      id: zonecount2.toString(),
+      z: 1,
+      points: zone.points,
+      ishov: false,
+      hover: function(s, cr){
+        this.ishov = true;
+        this.z = 2;
+      },
+      unhover: function(s, cr){
+        this.ishov = false;
+        this.z = 1;
+      },   
+      intersect: function(pt){
+        for(i_pt in this.points){
+          if(rx.dist(pt, this.points[ i_pt ]) <= 5){
+            return true;
+          }
+        }
+        return false;
+      },   
+      draw: function(ctx){
+      
+        if(this.ishov){
+          ix.noFill();
+          
+          ix.stroke("black", 1);
+          ix.rectangle({x: this.minx, y: this.miny}, this.maxx - this.minx, this.maxy - this.miny);
+          
+          ix.stroke("black", 3);
+          
+          for(i_pt in this.points){
+            ix.circle(this.points[ i_pt ], 5);
+          }          
+          
+          ix.fill("black");
+          ctx.font = "15px sans-serif";
+          ctx.fillText('nombre de clics : ' + this.points.length.toString(), this.minx, this.miny - 20);
+          
+          
+        } else {
+          ix.noFill();
+          ix.stroke("black", 1);
+          
+          for(i_pt in this.points){
+            ix.circle(this.points[ i_pt ], 5);
+          }         
+        }
+        
+        ix.noStroke();
+        
+        var col = 255 - Math.floor(rx.map(this.points.length, 0, maxzone, 0, 255));
+        
+        ix.fill("rgb(255," + col.toString() + "," + col.toString() + ")" );
+        
+        for(i_pt in this.points){
+          ix.circle(this.points[ i_pt ], 5);
+        }
+      }
+    };
+    
+    ajouterLinkedPoints(zonefusionnee, zone.linkedzones);
+    
+    zonestraitees.push( zonefusionnee );
+  }
+};
+
+function traiterZonesFusionnees(){
+  for(id in zonestraitees){
+    zc = zonestraitees[id];
+    var minx = 10000;
+    var maxx = 0;
+    var miny = 10000;
+    var maxy = 0;
+    
+    for(i_pt in zc.points){
+      var pt = zc.points[ i_pt ];
+      if(pt.x < minx) minx = pt.x;
+      if(pt.y < miny) miny = pt.y;
+      if(pt.x > maxx) maxx = pt.x;
+      if(pt.y > maxy) maxy = pt.y;      
+    }
+    
+    zc.minx = minx - 10;
+    zc.miny = miny - 10;
+    zc.maxx = maxx + 10;
+    zc.maxy = maxy + 10;
+    
+    if(zc.points.length > maxzone){
+      maxzone = zc.points.length;
+    }
+  }
+};
+
+function ajouterLinkedPoints(zoneF, linkedzones){
+  for(i in linkedzones){
+    var lz = zones[ i ];
+    if(lz){
+      for(pt in lz.points){
+        zoneF.points.push( lz.points[ pt ] );
+        ajouterLinkedPoints(zoneF, lz.linkedzones);
+        delete zones[ i ];
+      }
+    }
+  }
+}
+
+
+
+  
+</script>
+</head>
+<body onload="c = new X(w.toString(), h.toString(), 'test', 30); ix.setContext(c.context); c.init(datas);">
+<canvas id="test">your browser does not support canvas</canvas>
+<input type="button" onclick="calc();">
+</body>
+</html>

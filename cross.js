@@ -1,11 +1,11 @@
 /*****
-* v.0.5.5 - 07/09/2010
+* v.0.5.6 - 08/09/2010
 * cross.js is under MIT license 
 *
 * cross.js is a tiny event manager for HTML5.canvas
 * the main goal is to render canvas only if necessary
 * 
-* done : add keypressed and keyreleased
+* done : we load event listeners only if necessary 
 */
 
 function X(width, height, canvasid, framerate){
@@ -38,6 +38,12 @@ function X(width, height, canvasid, framerate){
     keypressed: {},
     keyreleased: {}
   };
+
+  // events managed
+  this.em = {
+		  
+  };
+  
   // mouse
   this.mouseX = 0;
   this.mouseY = 0;
@@ -529,9 +535,33 @@ X.prototype.addShape = function(shape){
     shape.id = this._generateId();
   }
   this.shapes[shape.id] = shape;
+
+  //we load mousemove only if necessary
+  if(!this.em.mousemove){
+	  if(shape.hover || shape.unhover || shape.dragg && shape.release){
+		  this.em.mousemove = true;
+		  attach(this.canvas, "mousemove", _eventManager);
+		  attach(this.canvas, "mouseout", _mouseOut);  
+	  }
+  }
+  
+  // we load key events only if necessary
+  if(!this.em.keymanagement){
+	  if(shape.keypressed || shape.keyreleased){
+		  if(document.crossjs){
+			  document.crossjs[ this.canvasid ] = this;
+		  }else{
+			  this.em.keymanagement = true;
+			  attach(document, "keyup", _eventManager);
+			  attach(document, "keydown", _eventManager);	  
+			  document.crossjs = {};
+			  document.crossjs[ this.canvasid ] = this;
+		  }  		  
+	  }
+  }
+  
   return shape.id;
   
-  return null;
 };
 
 
@@ -637,17 +667,7 @@ X.prototype.init = function(datas){
   // event management
   attach(this.canvas, "mouseup", _eventManager);
   attach(this.canvas, "mousedown", _eventManager);   
-  attach(this.canvas, "mousemove", _eventManager);   
-  attach(this.canvas, "mouseout", _mouseOut);  
-  
-  if(document.crossjs){
-	  document.crossjs[ this.canvasid ] = this;
-  }else{
-	  attach(document, "keyup", _eventManager);
-	  attach(document, "keydown", _eventManager);	  
-	  document.crossjs = {};
-	  document.crossjs[ this.canvasid ] = this;
-  }
+
   
   // draw a first time all the present shapes
   _render(true, this);
