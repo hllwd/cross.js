@@ -39,10 +39,6 @@ function X(width, height, canvasid, framerate){
     keyreleased: {}
   };
 
-  // events managed
-  this.em = {
-		  
-  };
   
   // mouse
   this.mouseX = 0;
@@ -535,30 +531,6 @@ X.prototype.addShape = function(shape){
     shape.id = this._generateId();
   }
   this.shapes[shape.id] = shape;
-
-  //we load mousemove only if necessary
-  if(!this.em.mousemove){
-	  if(shape.hover || shape.unhover || shape.dragg && shape.release){
-		  this.em.mousemove = true;
-		  attach(this.canvas, "mousemove", _eventManager);
-		  attach(this.canvas, "mouseout", _mouseOut);  
-	  }
-  }
-  
-  // we load key events only if necessary
-  if(!this.em.keymanagement){
-	  if(shape.keypressed || shape.keyreleased){
-		  if(document.crossjs){
-			  document.crossjs[ this.canvasid ] = this;
-		  }else{
-			  this.em.keymanagement = true;
-			  attach(document, "keyup", _eventManager);
-			  attach(document, "keydown", _eventManager);	  
-			  document.crossjs = {};
-			  document.crossjs[ this.canvasid ] = this;
-		  }  		  
-	  }
-  }
   
   return shape.id;
   
@@ -665,8 +637,19 @@ X.prototype.init = function(datas){
   }
 
   // event management
+  attach(this.canvas, "mousemove", _eventManager);
+  attach(this.canvas, "mouseout", _mouseOut);    
   attach(this.canvas, "mouseup", _eventManager);
   attach(this.canvas, "mousedown", _eventManager);   
+  
+  if(document.crossjs){
+	  document.crossjs[ this.canvasid ] = this;
+  }else{
+	  attach(document, "keyup", _eventManager);
+	  attach(document, "keydown", _eventManager);	  
+	  document.crossjs = {};
+	  document.crossjs[ this.canvasid ] = this;
+  }    
 
   
   // draw a first time all the present shapes
