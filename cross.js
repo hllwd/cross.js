@@ -519,7 +519,7 @@ X.prototype._generateId = function(){
 * public method addShape
 * add a shape in the render circuit
 */
-X.prototype.addShape = function(shape){
+X.prototype.addShape = function(shape, rend){
   if(!shape.z){
     shape.z = 0;
   }
@@ -531,6 +531,11 @@ X.prototype.addShape = function(shape){
     shape.id = this._generateId();
   }
   this.shapes[shape.id] = shape;
+  
+  // rendering
+  if(rend){
+    _render(true, this);
+  }
   
   return shape.id;
   

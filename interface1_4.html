@@ -1,0 +1,126 @@
+<html>
+<head>
+<script type="text/javascript" src="redcross.js"></script>
+<script type="text/javascript" src="ivorycross.js"></script>
+<script type="text/javascript" src="cross.js"></script>
+<script>
+
+var w = 800;
+var h = 1000;
+
+// ivorycross instance
+var ix = new IX();
+// redcross instance
+var rx = new RX();
+
+var datas = [];
+
+// chaque div est représenté par un rectangle
+// plus un triangle permettant de gérer sa taille
+// plus un circle permettant de le déplacer dans le canvas
+function createDivElement(id){
+
+	var divrect = {
+		id: id + "rect",
+		divid: id,
+		z: 0,
+		width: 50,
+		height: 50,
+		pos: {x: 0, y: 0},
+		draw: function(ctx){
+			ix.noFill();
+			ix.stroke("black", 1);
+			ix.rectangle(this.pos, this.width, this.height);		
+		}
+	};
+
+	var divcircle = {
+		id: id + "circle",
+		divid: id,
+		z: 0,
+		mask: {
+			center: {x: 40, y: 10},
+			radius: 8
+		},
+		dragg: function(step, cr){
+			moveDivElement(this.divid, cr);
+		}
+	};
+
+	var divtriangle = {
+		id: id + "triangle",
+		divid: id,
+		z: 0,
+		mask: [
+	       {x: 50, y: 40},
+	       {x: 50, y: 50},
+	       {x: 40, y: 50}
+		],
+		dragg: function(step, cr){
+			resizeDivElement(this.divid, cr);
+		}
+	};
+
+	c.addShape(divrect);
+	c.addShape(divcircle);
+	c.addShape(divtriangle, true);
+	
+};
+
+function moveDivElement(id, cr){
+	var rectangle = cr.getShapeById(id + "rect");
+	var circle = cr.getShapeById(id + "circle");
+	var triangle = cr.getShapeById(id + "triangle");
+
+	var dif = {
+		x: circle.mask.center.x - cr.mouseX,
+		y: circle.mask.center.y - cr.mouseY,
+	};
+
+	circle.mask.center = {
+		x: cr.mouseX,
+		y: cr.mouseY
+	};
+
+	rectangle.pos.x -= dif.x;
+	rectangle.pos.y -= dif.y;
+
+	triangle.mask = [
+         {x: rectangle.pos.x + rectangle.width, y: rectangle.pos.y + rectangle.height - 10 },
+         {x: rectangle.pos.x + rectangle.width, y: rectangle.pos.y + rectangle.height },
+         {x: rectangle.pos.x + rectangle.width - 10, y: rectangle.pos.y + rectangle.height }
+	];
+
+}
+
+function resizeDivElement(id, cr){
+	var rectangle = cr.getShapeById(id + "rect");
+	var circle = cr.getShapeById(id + "circle");
+	var triangle = cr.getShapeById(id + "triangle");	
+
+	triangle.mask = [
+	                 {x: cr.mouseX + 5, y: cr.mouseY - 5 },
+	                 {x: cr.mouseX + 5, y: cr.mouseY + 5 },
+	                 {x: cr.mouseX - 5, y: cr.mouseY + 5 }
+	        	];	
+
+	rectangle.width = triangle.mask[ 1 ].x - rectangle.pos.x;
+	rectangle.height = triangle.mask[ 1 ].y - rectangle.pos.y;
+
+	circle.mask.center.x = rectangle.pos.x + rectangle.width - 10;
+	circle.mask.center.y = rectangle.pos.y + 10;
+
+}
+
+</script>
+</head>
+<body onload="c = new X(w.toString(), h.toString(), 'divzone', 30); ix.setContext(c.context);  c.init(datas);">
+<canvas id="divzone" >your browser does not support canvas</canvas>
+<select id="divselect">
+	<option value="div1">div1</option>
+	<option value="div2">div2</option>
+	<option value="div3">div3</option>
+</select>
+<input type="button" value="creer nouveau div" onclick="createDivElement(document.getElementById('divselect').value);">
+</body>
+</html>

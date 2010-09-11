@@ -76,7 +76,7 @@ mouseX : int
 mouseY : int
 	current y position of the mouse in the canvas
 	
-addShape : String function(shape)
+addShape : String function(shape [,rend])
 	adding a shape in the cross.js cycle, returning its id and refreshing the context
 	
 removeShape : function(shape, boolean rend)
